@@ -12,6 +12,7 @@ export interface ILogEntry {
 
 export interface IWorkflowLog extends Document {
   workflowId: string;
+  userId: string;           // ← owner of this workflow
   workflowName: string;
   command: string;
   status: 'pending' | 'running' | 'completed' | 'failed';
@@ -28,28 +29,29 @@ export interface IWorkflowLog extends Document {
 
 const LogEntrySchema = new Schema<ILogEntry>({
   timestamp: { type: Date, default: Date.now },
-  step: { type: Number, required: true },
-  action: { type: String, required: true },
-  target: { type: String, required: true },
-  status: { type: String, enum: ['pending', 'running', 'success', 'error'], default: 'pending' },
-  message: { type: String, required: true },
-  data: { type: Schema.Types.Mixed },
+  step:      { type: Number, required: true },
+  action:    { type: String, required: true },
+  target:    { type: String, required: true },
+  status:    { type: String, enum: ['pending', 'running', 'success', 'error'], default: 'pending' },
+  message:   { type: String, required: true },
+  data:      { type: Schema.Types.Mixed },
 });
 
 const WorkflowLogSchema = new Schema<IWorkflowLog>(
   {
-    workflowId: { type: String, required: true, unique: true, index: true },
-    workflowName: { type: String, required: true },
-    command: { type: String, required: true },
-    status: { type: String, enum: ['pending', 'running', 'completed', 'failed'], default: 'pending' },
-    startedAt: { type: Date, default: Date.now },
-    completedAt: { type: Date },
-    durationMs: { type: Number },
-    steps: [LogEntrySchema],
-    results: [{ type: Schema.Types.Mixed }],
-    error: { type: String },
-    agentProvider: { type: String, default: 'tinyfish' },
-    totalSteps: { type: Number, default: 0 },
+    workflowId:     { type: String, required: true, unique: true, index: true },
+    userId:         { type: String, required: true, index: true },  // ← indexed for fast per-user queries
+    workflowName:   { type: String, required: true },
+    command:        { type: String, required: true },
+    status:         { type: String, enum: ['pending', 'running', 'completed', 'failed'], default: 'pending' },
+    startedAt:      { type: Date, default: Date.now },
+    completedAt:    { type: Date },
+    durationMs:     { type: Number },
+    steps:          [LogEntrySchema],
+    results:        [{ type: Schema.Types.Mixed }],
+    error:          { type: String },
+    agentProvider:  { type: String, default: 'tinyfish' },
+    totalSteps:     { type: Number, default: 0 },
     completedSteps: { type: Number, default: 0 },
   },
   { timestamps: true }

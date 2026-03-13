@@ -23,7 +23,7 @@ export default function LogsPage() {
   const [workflows, setWorkflows] = useState<WorkflowSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string | null>(null);
-  const [detail, setDetail] = useState<Record<string, unknown> | null>(null);
+  const [detail, setDetail] = useState<unknown>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function LogsPage() {
     try {
       const res = await fetch(`/api/agent/logs?workflowId=${id}`);
       const data = await res.json();
-      setDetail(data as Record<string, unknown>);
+      setDetail(data);
     } catch {
       setDetail(null);
     }

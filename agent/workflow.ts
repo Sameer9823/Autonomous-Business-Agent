@@ -12,6 +12,7 @@ import WorkflowLog from '@/models/log';
 export interface WorkflowOptions {
   command: string;
   workflowId: string;
+  userId: string;
   onLog?: (entry: LogEntry) => void;
 }
 
@@ -36,7 +37,7 @@ export interface WorkflowResult {
 }
 
 export async function runWorkflow(options: WorkflowOptions): Promise<WorkflowResult> {
-  const { command, workflowId, onLog } = options;
+  const { command, workflowId, userId, onLog } = options;
   const startTime = Date.now();
   const logs: LogEntry[] = [];
 
@@ -61,6 +62,7 @@ export async function runWorkflow(options: WorkflowOptions): Promise<WorkflowRes
   try {
     workflowDoc = await WorkflowLog.create({
       workflowId,
+      userId,                    // ← save owner
       workflowName: 'Processing...',
       command,
       status: 'running',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
@@ -32,13 +32,13 @@ interface WorkflowResult {
   provider: string;
 }
 
-// ── Inner component that uses useSearchParams ──
-function DashboardContent() {
+export default function DashboardPage() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<AgentStatus>('idle');
   const [logs, setLogs] = useState<ConsoleEntry[]>([]);
   const [workflowId, setWorkflowId] = useState<string | undefined>();
   const [workflowResult, setWorkflowResult] = useState<WorkflowResult | null>(null);
+  // command = what's typed in the box (controlled)
   const [command, setCommand] = useState('');
   const [logOffset, setLogOffset] = useState(0);
   const [currentCommand, setCurrentCommand] = useState('');
@@ -46,10 +46,11 @@ function DashboardContent() {
 
   // ── On mount: check for ?run= query param and auto-execute ──
   useEffect(() => {
-    const runCmd = searchParams?.get('run');
+    const runCmd = searchParams.get('run');
     if (runCmd) {
       const decoded = decodeURIComponent(runCmd);
       setCommand(decoded);
+      // Small delay so the input renders before firing
       setTimeout(() => handleRunAgent(decoded), 200);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -143,7 +144,7 @@ function DashboardContent() {
 
   // ── Sidebar template click: fill input AND run immediately ──
   const handleTemplateSelect = (cmd: string) => {
-    if (status === 'running') return;
+    if (status === 'running') return; // block if already running
     setCommand(cmd);
     handleRunAgent(cmd);
   };
@@ -205,7 +206,7 @@ function DashboardContent() {
             </div>
           )}
 
-          {/* Command input */}
+          {/* Command input — controlled with live `command` state */}
           <CommandInput
             onSubmit={handleRunAgent}
             isRunning={status === 'running'}
@@ -236,21 +237,5 @@ function DashboardContent() {
         </main>
       </div>
     </div>
-  );
-}
-
-// ── Outer component wraps with Suspense (required for useSearchParams in Next.js) ──
-export default function DashboardPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="flex items-center gap-3 text-green-700 font-mono text-sm">
-          <span className="w-4 h-4 border border-green-500 border-t-transparent rounded-full animate-spin" />
-          Loading dashboard...
-        </div>
-      </div>
-    }>
-      <DashboardContent />
-    </Suspense>
   );
 }
