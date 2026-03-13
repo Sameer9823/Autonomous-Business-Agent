@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
@@ -32,13 +32,13 @@ interface WorkflowResult {
   provider: string;
 }
 
-export default function DashboardPage() {
+// ── Inner component that uses useSearchParams ──
+function DashboardContent() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<AgentStatus>('idle');
   const [logs, setLogs] = useState<ConsoleEntry[]>([]);
   const [workflowId, setWorkflowId] = useState<string | undefined>();
   const [workflowResult, setWorkflowResult] = useState<WorkflowResult | null>(null);
-  // command = what's typed in the box (controlled)
   const [command, setCommand] = useState('');
   const [logOffset, setLogOffset] = useState(0);
   const [currentCommand, setCurrentCommand] = useState('');
@@ -50,7 +50,6 @@ export default function DashboardPage() {
     if (runCmd) {
       const decoded = decodeURIComponent(runCmd);
       setCommand(decoded);
-      // Small delay so the input renders before firing
       setTimeout(() => handleRunAgent(decoded), 200);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -144,7 +143,7 @@ export default function DashboardPage() {
 
   // ── Sidebar template click: fill input AND run immediately ──
   const handleTemplateSelect = (cmd: string) => {
-    if (status === 'running') return; // block if already running
+    if (status === 'running') return;
     setCommand(cmd);
     handleRunAgent(cmd);
   };
@@ -206,7 +205,7 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Command input — controlled with live `command` state */}
+          {/* Command input */}
           <CommandInput
             onSubmit={handleRunAgent}
             isRunning={status === 'running'}
@@ -237,5 +236,21 @@ export default function DashboardPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+// ── Outer component wraps with Suspense (required for useSearchParams in Next.js) ──
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="flex items-center gap-3 text-green-700 font-mono text-sm">
+          <span className="w-4 h-4 border border-green-500 border-t-transparent rounded-full animate-spin" />
+          Loading dashboard...
+        </div>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }
