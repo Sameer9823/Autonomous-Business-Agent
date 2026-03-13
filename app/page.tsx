@@ -40,7 +40,7 @@ export default function HomePage() {
       <section className="pt-32 pb-20 px-6 max-w-5xl mx-auto text-center">
         <div className="inline-flex items-center gap-2 text-[10px] font-mono text-green-600 border border-green-900/40 px-3 py-1.5 rounded-sm mb-8 tracking-widest">
           <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-          TINYFISH WEB AGENT HACKATHON 2024
+          TINYFISH WEB AGENT HACKATHON 2026
         </div>
 
         <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 leading-tight">
