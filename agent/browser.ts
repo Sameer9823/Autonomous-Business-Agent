@@ -22,6 +22,7 @@ export interface BrowserResult {
 }
 
 export interface ExtractedData {
+  [key: string]: unknown;
   title?: string;
   description?: string;
   pricing?: PricingEntry[];
