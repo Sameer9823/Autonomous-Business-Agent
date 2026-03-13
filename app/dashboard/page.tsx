@@ -46,7 +46,7 @@ export default function DashboardPage() {
 
   // ── On mount: check for ?run= query param and auto-execute ──
   useEffect(() => {
-    const runCmd = searchParams.get('run');
+    const runCmd = searchParams?.get('run');
     if (runCmd) {
       const decoded = decodeURIComponent(runCmd);
       setCommand(decoded);
